@@ -30,13 +30,20 @@ func main() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil { // If we got a message
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ты написал "+update.Message.Text)
-			// msg.ReplyToMessageID = update.Message.MessageID
-
-			bot.Send(msg)
+		if update.Message == nil {
+			continue
 		}
+
+		if update.Message.Command() == "help" {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Чем тебе помочь")
+			bot.Send(msg)
+			continue
+		}
+		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ты написал "+update.Message.Text)
+		bot.Send(msg)
+
 	}
 }
