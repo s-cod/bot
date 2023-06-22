@@ -35,15 +35,22 @@ func main() {
 			continue
 		}
 
-		if update.Message.Command() == "help" {
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Чем тебе помочь")
-			bot.Send(msg)
-			continue
+		switch update.Message.Command() {
+		case "help":
+			helpCommand(bot, update.Message)
+		default:
+			defaultHandler(bot, update.Message)
 		}
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ты написал "+update.Message.Text)
-		bot.Send(msg)
 
 	}
+}
+
+func helpCommand(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "Чем тебе помочь")
+	bot.Send(msg)
+}
+
+func defaultHandler(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "Ты написал: "+inputMessage.Text)
+	bot.Send(msg)
 }
