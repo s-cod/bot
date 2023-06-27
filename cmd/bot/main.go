@@ -6,9 +6,8 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
+	"github.com/s-cod/bot/internal/service/product"
 )
-
-// const TOKEN=5998769208:AAH5XYpg3akqFml9giW_FA3Fq84M7seX12M
 
 func main() {
 	godotenv.Load()
@@ -28,29 +27,55 @@ func main() {
 	}
 
 	updates := bot.GetUpdatesChan(u)
+	if err != nil {
+		log.Panic(err)
+	}
+	productService := product.NewService()
+	commander := NewCommander(bot, productService)
 
 	for update := range updates {
 
 		if update.Message == nil {
 			continue
 		}
-
 		switch update.Message.Command() {
 		case "help":
-			helpCommand(bot, update.Message)
+			commander.helpCommand(update.Message)
+		case "list":
+			commander.listCommand(update.Message)
 		default:
-			defaultHandler(bot, update.Message)
+			commander.defaultHandler(update.Message)
 		}
 
 	}
 }
 
-func helpCommand(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "Чем тебе помочь")
-	bot.Send(msg)
+type Commander struct {
+	bot            *tgbotapi.BotAPI
+	productService *product.Service
 }
 
-func defaultHandler(bot *tgbotapi.BotAPI, inputMessage *tgbotapi.Message) {
+func NewCommander(bot *tgbotapi.BotAPI, productService *product.Service) *Commander {
+	return &Commander{
+		bot:            bot,
+		productService: productService,
+	}
+}
+
+func (c Commander) helpCommand(inputMessage *tgbotapi.Message) {
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "Чем тебе помочь")
+	c.bot.Send(msg)
+}
+func (c Commander) listCommand(inputMessage *tgbotapi.Message) {
+	dat := "Here all products:\n\n"
+	for _, i := range c.productService.List() {
+		dat += i.Title + "\n"
+	}
+	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, dat)
+	c.bot.Send(msg)
+}
+
+func (c Commander) defaultHandler(inputMessage *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(inputMessage.Chat.ID, "Ты написал: "+inputMessage.Text)
-	bot.Send(msg)
+	c.bot.Send(msg)
 }
