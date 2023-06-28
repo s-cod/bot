@@ -36,16 +36,6 @@ func main() {
 
 	for update := range updates {
 
-		if update.Message == nil {
-			continue
-		}
-		switch update.Message.Command() {
-		case "help":
-			commander.Help(update.Message)
-		case "list":
-			commander.List(update.Message)
-		default:
-			commander.Default(update.Message)
-		}
+		commander.ReadUpdate(update)
 	}
 }
