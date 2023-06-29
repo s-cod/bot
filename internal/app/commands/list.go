@@ -12,6 +12,3 @@ func (c *Commander) List(inputMessage *tgbotapi.Message) {
 
 }
 
-func init() {
-	commands["list"] = (*Commander).List
-}

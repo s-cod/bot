@@ -5,8 +5,6 @@ import (
 	"github.com/s-cod/bot/internal/service/product"
 )
 
-var commands = map[string]func(c *Commander, msg *tgbotapi.Message){}
-
 type Commander struct {
 	bot            *tgbotapi.BotAPI
 	productService *product.Service
@@ -27,11 +25,16 @@ func (c *Commander) ReadUpdate(update tgbotapi.Update) {
 		return
 	}
 
-	command, ok := commands[update.Message.Command()]
+	switch update.Message.Command() {
 
-	if ok {
-		command(c, update.Message)
-	} else {
+	case "help":
+		c.Help(update.Message)
+	case "list":
+		c.List(update.Message)
+	case "get":
+		c.Get(update.Message)
+	default:
 		c.Default(update.Message)
 	}
+
 }

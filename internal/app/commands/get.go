@@ -9,7 +9,3 @@ func (c *Commander) Get(inputMessage *tgbotapi.Message) {
 	c.bot.Send(msg)
 
 }
-
-func init() {
-	commands["get"] = (*Commander).Get
-}
