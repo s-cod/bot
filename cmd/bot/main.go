@@ -31,11 +31,11 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
 	productService := product.NewService()
 	commander := commands.NewCommander(bot, productService)
 
 	for update := range updates {
-
 		commander.ReadUpdate(update)
 	}
 }

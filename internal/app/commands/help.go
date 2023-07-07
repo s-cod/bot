@@ -7,5 +7,6 @@ func (c Commander) Help(inputMessage *tgbotapi.Message) {
 		inputMessage.Chat.ID,
 		"Чем тебе помочь: \ncommand /list",
 	)
+
 	c.bot.Send(msg)
 }
