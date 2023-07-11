@@ -22,12 +22,21 @@ func NewCommander(
 	}
 }
 
-func (c *Commander) ReadUpdate(update tgbotapi.Update) {
+func (c *Commander) HandleUpdate(update tgbotapi.Update) {
 	defer func() {
 		if panicValue := recover(); panicValue != nil {
-			log.Println(panicValue)
+			log.Printf("Recover from panic: %v", panicValue)
 		}
 	}()
+
+	if update.CallbackQuery != nil {
+		msg := tgbotapi.NewMessage(
+			update.CallbackQuery.Message.Chat.ID,
+			"Data: "+update.CallbackQuery.Data,
+		)
+		c.bot.Send(msg)
+		return
+	}
 
 	if update.Message == nil {
 		return
