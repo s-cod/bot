@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -22,6 +24,10 @@ func NewCommander(
 	}
 }
 
+type CommandData struct {
+	Offset int `json:"offset"`
+}
+
 func (c *Commander) HandleUpdate(update tgbotapi.Update) {
 	defer func() {
 		if panicValue := recover(); panicValue != nil {
@@ -30,9 +36,11 @@ func (c *Commander) HandleUpdate(update tgbotapi.Update) {
 	}()
 
 	if update.CallbackQuery != nil {
+		parsedData := &CommandData{}
+		json.Unmarshal([]byte(update.CallbackQuery.Data), &parsedData)
 		msg := tgbotapi.NewMessage(
 			update.CallbackQuery.Message.Chat.ID,
-			"Data: "+update.CallbackQuery.Data,
+			fmt.Sprintf("Parsed: %+v\n", parsedData),
 		)
 		c.bot.Send(msg)
 		return
